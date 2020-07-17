@@ -72,7 +72,9 @@ function newToy(event){
 
 function likes(event, toy){
   toy.likes ++ 
-  console.log(toy.likes)
+  let div = event.target.parentElement 
+  let p = div.querySelector('p')
+  p.innerText = `Likes ${toy.likes}`
   fetch(`http://localhost:3000/toys/${toy.id}`, {
     method: 'PATCH',
     headers: {
