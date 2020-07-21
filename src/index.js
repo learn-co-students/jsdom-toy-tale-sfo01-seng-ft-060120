@@ -12,122 +12,58 @@ document.addEventListener("DOMContentLoaded", () => {
       toyFormContainer.style.display = "none";
     }
   });
-
-  // load all toys
-  const fetchAll = () => {
-  fetch('http://localhost:3000/toys')
-  .then(res => res.json())
-  .then(json => json.forEach(toy => createCard(toy)))
-  }
-
   fetchAll()
-
-  // add a toy
-  const toyForm = document.querySelector('.add-toy-form')
-  toyForm.addEventListener('submit', (e) => {
-    postNewToy(e)
-  })
-
-
 });
 
+const fetchAll = () => {
+  fetch('http://localhost:3000/toys')
+  .then(res => res.json())
+  .then(toys => {
+    toys.forEach(toy => showOneToy(toy))
+  })
+}
 
-
-// additional methods
-
-const createCard = (toy) => {
-  const toyContainer = document.querySelector('#toy-collection')
-
-  // create elements
-  let card = document.createElement('div')
+const showOneToy = (toy) => {
+  const toyFormContainer = document.querySelector("#toy-collection");
+  let card = document.createElement('div');
   card.className = 'card'
   card.id = toy.id
 
-  let h2 = document.createElement('h2')
-  h2.innerText = toy.name
-  card.appendChild(h2)
-
-  let img = document.createElement('img')
-  img.src = toy.image
-  img.className = 'toy-avatar'
-  card.appendChild(img)
-
+  card.innerHTML =`
+    <h2>${toy.name}</h2>
+    <img src=${toy.image} class="toy-avatar" />
+  `
   let p = document.createElement('p')
   p.innerText = `${toy.likes} Likes`
   card.appendChild(p)
 
-  let button = document.createElement('button')
-  button.className = 'like-btn'
-  button.innerText = ' ❤ '
+  let likeButton = document.createElement('button')
+  likeButton.innerText = '❤'
+  card.appendChild(likeButton)
 
-  button.addEventListener('click', (e) => {
-    // find the like button
-    addLike(e, toy)
-    // retrieve and modify like button value
-    // update database
-  })
+  toyFormContainer.appendChild(card)
 
-  card.appendChild(button)
-
-  toyContainer.appendChild(card)
-
-  // toyContainer.innerHTML += `
-  //   <div class='card' id='${toy.id}'>
-  //     <h2>${toy.name}</h2>
-  //     <img src='${toy.image}' height=300px >
-  //     <p></p>
-  //     <button class='like-btn'> ❤ </button>
-  //   </div>
-  // `
-
-  // update likes
-  // let button = document.querySelector('.like-btn')
-  // console.log(currentCard)
-
+  likeButton.addEventListener('click', (e) => likeToy(e, toy))
 }
 
-const addLike = (e, toy) => {
-  e.preventDefault()
-  let newLikeValue = parseInt(toy.likes) + 1
+const likeToy = (e, toy) => {
+
+  let newLikes = toy.likes +=1
   let data = {
-    "likes": newLikeValue
+    likes: newLikes
   }
 
-  fetch(`http://localhost:3000/toys/${toy.id}`,{
-    method: 'PATCH',
-    headers: {
-      'Content-Type':'application/json',
-    },
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(json => updateLikesView(json))
-}
-
-const updateLikesView = (toy) => {
   let currentCard = document.getElementById(toy.id)
   let p = currentCard.querySelector('p')
-  p.textContent = `${toy.likes} Likes`
-}
+  p.innerText = `${newLikes} Likes`
 
-const postNewToy = (e) => {
-  e.preventDefault()
-  let randId = Math.floor((Math.random() * 100) + 1)
-  let data = {
-    "id": randId,
-    "name": e.target[0].value ,
-    "image": e.target[1].value,
-    "likes": 0
-  }
-
-  fetch('http://localhost:3000/toys',{
-    method: 'POST',
+  fetch(`http://localhost:3000/toys/${toy.id}`, {
+    method: 'PATCH',
     headers: {
-      'Content-Type':'application/json',
+      'Content-Type':'application/json'
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   })
   .then(res => res.json())
-  .then(json => createCard(json))
-
+  .then(console.log)
 }
