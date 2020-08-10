@@ -14,9 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }); 
 
 
-
+// accessible variables
 const toyUrl = 'http://localhost:3000/toys' //render all the toys
-const toyContainer = document.getElementById('toy-collection')
+const toyContainer = document.getElementById('toy-collection') //container
+// 
+
 
 const fetchAllToys = () => {
   fetch(toyUrl)
@@ -28,16 +30,18 @@ fetchAllToys()
 const renderToys = (toy) =>{
 // console.log(toy)
   const toyCard = document.createElement('div')
-  // console.log(toyCard)
+  toyCard.className = 'card'
+  toyCard.id = toy.id
   // //add an id to the card to make each card unique 
   toyCard.innerHTML = `
-     <div class="card" id="${toy.id}"> 
      <h2>${toy.name}</h2>
      <img src=${toy.image} class="toy-avatar" />
      <p>${toy.likes} Likes </p>
      <button class="like-btn"> likes <3</button>
+     <button id="delete-btn" data-delete="delete">Delete</button>
      </div>
    `
+
   toyContainer.appendChild(toyCard)
   // console.log(toyContainer)
 
@@ -47,6 +51,9 @@ const renderToys = (toy) =>{
   const btn = card.querySelector('button') //we can do this b/c we are grabbing a specific button from a specific card  
   btn.addEventListener('click', (e) => updateLikes(toy))
   
+  const deleteBtn = card.querySelector('button#delete-btn')
+  deleteBtn.addEventListener('click', () => deleteCard(toy))
+  // console.log(deleteBtn)
 }
 
 // // PATCH REQUEST
@@ -110,8 +117,6 @@ const postFetch = (e) =>{
   })
   .then(res => res.json())
   .then(json => renderToys(json)) //pessimistic render
-    
-    
   //   {
   //   const newToyCard = document.createElement('div')
   //   // console.log(toyCard)
@@ -130,6 +135,21 @@ const postFetch = (e) =>{
   // debugger
 }
 
+// create a delete button here
+const deleteCard = (toy) => {
+  fetch(`http://localhost:3000/toys/${toy.id}`,{
+    method: 'DELETE',
+  })
+  .then(res => res.json())
+  .then(json => {
+    console.log(json)
+    // console.log('card deleted')
+    const deletedCard = document.getElementById(toy.id)
+    deletedCard.remove()
+    console.log(deletedCard)
+  })
+
+}
 
 
 }); //DOM Content Load ends here
