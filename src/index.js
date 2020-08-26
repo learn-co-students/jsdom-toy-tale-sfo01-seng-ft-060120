@@ -5,7 +5,6 @@ const toyContainer = document.getElementById('toy-collection')
 let addToy = false;
 
 // YOUR CODE HERE 
-// methods 
 
 const fetchAllToys = () => {
   fetch(`http://localhost:3000/toys`)
@@ -20,8 +19,8 @@ const updateLikes = (toy) => {
   fetch(`http://localhost:3000/toys/${toy.id}`, {
     method:'PATCH',
     headers: {
-      'Content-Type': 'application/json', // what the server expects
-        Accept: "application/json" // what the server sends back 
+      'Content-Type': 'application/json',
+        Accept: "application/json"
     },
     body: JSON.stringify(data),
   })
@@ -46,8 +45,6 @@ const postNewToy = (toy) => {
     body: JSON.stringify(toy),
   })
   .then(res => res.json())
-  // .then(toys => console.log(toys)) // => would return array of toys
-  // way to check params 
   .then(json => buildToy(json))
 
 }
