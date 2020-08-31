@@ -39,6 +39,8 @@ const renderToys = (toy) =>{
      <p>${toy.likes} Likes </p>
      <button class="like-btn"> likes <3</button>
      <button id="delete-btn" data-delete="delete">Delete</button>
+     <button id="edit-btn" data-edit="delete">Edit</button>
+
      </div>
    `
 
@@ -53,7 +55,12 @@ const renderToys = (toy) =>{
   
   const deleteBtn = card.querySelector('button#delete-btn')
   deleteBtn.addEventListener('click', () => deleteCard(toy))
-  // console.log(deleteBtn)
+
+//edit event listener
+const editBtn = card.querySelector('button#edit-btn')
+editBtn.addEventListener('click', (e) => {
+  listenForSubmit(toy)
+})
 }
 
 // // PATCH REQUEST
@@ -74,10 +81,8 @@ const updateLikes = (toy) => {
   .then(json => { 
     //target the current toy id and its likes html and change the inner text with every update 
     let currentToy = document.getElementById(json.id) 
-    console.log(currentToy)
     let p = currentToy.querySelector('p')
     p.textContent = `${json.likes} likes`
-    console.log(p)
     // this is what pessimistic rendering looks like
   })
 }
@@ -93,6 +98,9 @@ const listenForPost = () => {
     e.preventDefault()
     // console.log(e)
     postFetch(e)
+    let form = document.querySelector('.add-toy-form')
+    form.reset()
+    console.log(form)
   })
  
 }
@@ -116,7 +124,11 @@ const postFetch = (e) =>{
     body: JSON.stringify(data)
   })
   .then(res => res.json())
-  .then(json => renderToys(json)) //pessimistic render
+  .then(json => {
+    renderToys(json)
+  
+  })
+   //pessimistic render
   //   {
   //   const newToyCard = document.createElement('div')
   //   // console.log(toyCard)
@@ -142,14 +154,67 @@ const deleteCard = (toy) => {
   })
   .then(res => res.json())
   .then(json => {
-    console.log(json)
     // console.log('card deleted')
     const deletedCard = document.getElementById(toy.id)
     deletedCard.remove()
     console.log(deletedCard)
   })
+} // delete card ends here
+
+
+const listenForSubmit = (toy) => {
+  let form = document.querySelector('.add-toy-form')
+  let toyName = form[0]
+  let toyImage = form[1]
+  let p = form[2]
+  toyName.value = toy.name
+  toyImage.value = toy.image
+  
+  p.value = 'Edit Toy'
+  form.removeEventListener('submit', (e) => postFetch())
+  form.addEventListener('submit', (e) => {
+  patchNewToy(e, toy)
+
+})
+  // debugger
+  console.log(form)
+
+} // end of ListenForSubmit
+
+const patchNewToy = (e, toy) => {
+  // debugger
+  let data = {
+    name: e.target[0].value,
+    image: e.target[1].value,
+    likes: 0,
+  }
+
+  fetch(`http://localhost:3000/toys/${toy.id}`, {
+    method: 'PATCH',
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(json => {
+    
+    const editToy = document.getElementById(json.id)
+    let editToyName = editToy.querySelector('h2')
+    let editToyImg = editToy.querySelector('img')
+    editToyName.textContent = json.name
+    editToyImg.src = json.image
+    console.log(editToy)
+  })
+  // console.log(e, toy)
 
 }
 
+//need to replace the original with the edit, 
+//i guess that means deleting the original
+
+//need to revert the edit button back to submit after toy is edited
+//instead of having to refresh the page
 
 }); //DOM Content Load ends here
